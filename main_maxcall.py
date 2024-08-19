@@ -2,7 +2,6 @@ import argparse
 import torch
 from sde import get_sde
 from train import DeepBSDEOSMaxCall
-from plot import plot_max_call
 from bounds import true_lower, true_upper_bs
 
 
@@ -18,7 +17,6 @@ def get_args():
     parser.add_argument('--upper_size', default=2 ** 15, type=int, help="number of samples for upper bound")
     parser.add_argument('--logging_frequency', default=20, type=int, help="frequency of displaying results")
     parser.add_argument('--device', default='cpu', type=str, help="cpu or cuda")
-    # parser.add_argument('--seed', default=1234, type=int, help="random seed")
     # type of option
     parser.add_argument('--option_name', default='MaxCall', type=str, help="types of option")
     parser.add_argument('--strike', default=100, type=float)
@@ -50,16 +48,6 @@ def train(no_trial=1):
     torch.save(c_fun, f"./trained_models_maxcall/c_models_d{cfg['d']}_init{cfg['s_init']}_N{cfg['num_time_step']}_{no_trial}.pth")
     torch.save(g_fun, f"./trained_models_maxcall/g_models_d{cfg['d']}_init{cfg['s_init']}_N{cfg['num_time_step']}_{no_trial}.pth")
 
-    if cfg['d'] == 2:
-        plot_max_call(c_fun, cfg, option, step_plot=5, plt_size=4000)
-
-    with torch.no_grad():
-        g_fun[1].eval()
-        x0 = cfg['s_init'] * torch.ones((1, cfg['d']))
-        x0 = x0.to(torch.device(cfg['device']))
-        grad0 = g_fun[1](x0)
-        print(grad0)
-
 
 def test(no_trial=1):
     cfg = get_args()
@@ -70,9 +58,6 @@ def test(no_trial=1):
     g_fun = torch.load(f"./trained_models_maxcall/g_models_d{cfg['d']}_init{cfg['s_init']}_N{cfg['num_time_step']}_{no_trial}.pth")
     print("finish loading!")
 
-    if cfg['d'] == 2:
-        plot_max_call(c_fun, cfg, option, step_plot=70, plt_size=10000)
-
     # compute lower bound
     option_price, h_lower = true_lower(cfg, c_fun, cfg['valid_size'])
     print(f"lower bound is {option_price:.4f}, confidence interval:{h_lower:.4f}")
@@ -81,9 +66,7 @@ def test(no_trial=1):
     c1_fun = c_fun[1]
     option_upper, h_upper = true_upper_bs(cfg, g_fun, c1_fun, scale=64, upper_size=cfg['upper_size'])
     print(f"upper bound is {option_upper:.4f}, confidence interval:{h_upper:.4f}")
-
     print(f"95% confidence interval is [{option_price - h_lower:.4f}, {option_upper + h_upper:.4f}].")
-    print(f"relative difference percentage is {(option_upper - option_price + h_lower + h_upper) / option_price:.4f}")
 
 
 if __name__ == '__main__':

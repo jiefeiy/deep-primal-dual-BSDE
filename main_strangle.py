@@ -17,7 +17,6 @@ def get_args():
     parser.add_argument('--upper_size', default=2 ** 15, type=int, help="number of samples for upper bound")
     parser.add_argument('--logging_frequency', default=50, type=int, help="frequency of displaying results")
     parser.add_argument('--device', default='cpu', type=str, help="cpu or cuda")
-    # parser.add_argument('--seed', default=1234, type=int, help="random seed")
     # type of option
     parser.add_argument('--option_name', default='Strangle', type=str, help="types of option")
     parser.add_argument('--r', default=0.05, type=float, help="interest rate")
@@ -47,14 +46,6 @@ def train(no_trial):
     torch.save(c_fun, f"./trained_models_strangle/c_models_N{cfg['num_time_step']}_{no_trial}.pth")
     torch.save(g_fun, f"./trained_models_strangle/g_models_N{cfg['num_time_step']}_{no_trial}.pth")
 
-    # compute gradient
-    with torch.no_grad():
-        g_fun[1].eval()
-        x0 = cfg['s_init'] * torch.ones((1, cfg['d']))
-        x0 = x0.to(torch.device(cfg['device']))
-        grad0 = g_fun[1](x0)
-        print(grad0)
-
 
 def test(no_trial):
     cfg = get_args()
@@ -75,8 +66,6 @@ def test(no_trial):
     print(f"upper bound is {option_upper:.4f}, confidence interval:{h_upper:.4f}")
 
     print(f"95% confidence interval is [{option_price - h_lower:.4f}, {option_upper + h_upper:.4f}].")
-
-    print(f"relative difference percentage is {(option_upper - option_price + h_lower + h_upper) / option_price:.4f}")
 
 
 if __name__ == '__main__':
