@@ -228,22 +228,8 @@ class MaxCall(SDE):
         return discount * ans
 
 
-def all_seed(seed=1):
-    """
-    set up random seed for all
-    """
-    np.random.seed(seed)
-    torch.manual_seed(seed)        # config for CPU
-    torch.cuda.manual_seed(seed)   # config for GPU
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
-    torch.backends.cudnn.enabled = False
-
-
 def get_sde(cfg):
     try:
-        # if cfg['seed'] != 0:
-        #     all_seed(seed=cfg['seed'])
         return globals()[cfg['option_name']](cfg['d'], cfg['expiration'], cfg['num_time_step'], cfg)
     except KeyError:
         raise KeyError("Option type required not found. Please try others.")

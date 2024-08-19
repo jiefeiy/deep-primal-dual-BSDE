@@ -16,7 +16,7 @@ def get_args():
     parser.add_argument('--valid_size', default=2 ** 22, type=int, help="number of samples for lower bound")
     parser.add_argument('--upper_size', default=2 ** 15, type=int, help="number of samples for upper bound")
     parser.add_argument('--logging_frequency', default=20, type=int, help="frequency of displaying results")
-    parser.add_argument('--device', default='cpu', type=str, help="cpu or cuda")
+    parser.add_argument('--device', default='cpu', type=str, help="cpu")
     # type of option
     parser.add_argument('--option_name', default='Heston', type=str, help="types of option")
     parser.add_argument('--r', default=0.1, type=float, help="interest rate")
